@@ -6,4 +6,3 @@ node_modules
 *.pem
 *-lock*
 endpoint.js
-.serverless
