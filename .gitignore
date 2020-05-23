@@ -1,0 +1,9 @@
+.serverless
+node_modules
+*log*
+*_ok*
+.env
+*.pem
+*-lock*
+endpoint.js
+.serverless

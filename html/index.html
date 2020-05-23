@@ -1,0 +1,47 @@
+<html>
+    <head></head>
+    <body>
+        <span id="user" style="display:none"></span>
+        <a id="login" href="#">Log in with SAML</a>
+
+        <script
+            src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>
+
+        <script src="endpoint.js"></script>
+
+        <script>
+        
+            var jwtPath = "/demo/getJWT";
+            
+            function decoder(token) {
+                try {
+                    var base64 = token.replace('-', '+').replace('_', '/')
+                    var utf8 = atob(base64)
+                    var json = JSON.parse(utf8)
+                    var json_string = JSON.stringify(json, null, 4)
+                } catch (err) {
+                    json_string = "Bad Section.\nError: " + err.message
+                }
+                return json_string
+            }
+            
+            var loginWindow;
+            $("#login").on("click", function(){
+                loginWindow = window.open(endpoint+jwtPath);
+            });
+            
+            window.addEventListener('message', function(e) {
+                if(e.origin !== endpoint){
+                    return;
+                }
+                loginWindow.close();
+                var message = JSON.parse(decoder(e.data.split(".")[1]));
+                $("#user").html("Hi, " + message["urn:oid:2.5.4.42"]); //review your SAML response
+                $("#user").css("display", "block");
+                $("#login").css("display", "none");
+            });
+        </script>
+    </body>
+</html>

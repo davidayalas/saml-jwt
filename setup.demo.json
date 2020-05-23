@@ -1,0 +1,4 @@
+{
+    "serviceName" : "saml-jwt",
+    "frontendBucket" : "web"
+}
