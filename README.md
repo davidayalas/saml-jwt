@@ -4,16 +4,12 @@ This is an extensible SAML Auth Endpoint to get JWT tokens.
 
 * It will generate a JWT Token after user login. 
 * To manage it from client side, you have to capture PostMessage. Sample code at the end or in [html frontend](html/index.html).
-	* if you deploy with serverless framework complete working sample is available, without setup, consuming [https://samltest.id/](https://samltest.id/)
+* if you deploy with serverless framework complete working sample is available, without setup, consuming [https://samltest.id/](https://samltest.id/). You only have to upload [SP metadata](docs/sp-metadata.xml) and change <md:AssertionConsumerService Location="..."> with your api gateway endpoint.
 
 ## Install dependencies
 
 		$ cd backend
 		$ npm install
-
-## Run
-
-		$ node app.js
 
 ## Working modes
 
