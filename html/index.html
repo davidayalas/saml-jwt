@@ -128,7 +128,8 @@
             }
             
             var loginWindow;
-            $("#login").on("click", function(){
+            $("#login").on("click", function(e){
+                e.preventDefault();
                 var w=425, h=425;
                 // Fixes dual-screen position                         Most browsers      Firefox  
                 var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;  
@@ -144,7 +145,6 @@
                 if (window.focus) {  
                     loginWindow.focus();  
                 }
-                return false;
             });
             
             window.addEventListener('message', function(e) {
