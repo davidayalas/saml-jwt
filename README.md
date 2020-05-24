@@ -3,8 +3,8 @@
 This is an extensible SAML Auth Endpoint to get JWT tokens.
 
 * It will generate a JWT Token after user login. 
-* To manage it from client side, you have to capture PostMessage. Sample code at the end
-	* if you deploy with serverless framework complete working sample is available
+* To manage it from client side, you have to capture PostMessage. Sample code at the end or in [html frontend](html/index.html).
+	* if you deploy with serverless framework complete working sample is available, without setup, consuming [https://samltest.id/](https://samltest.id/)
 
 ## Install dependencies
 
@@ -20,7 +20,7 @@ This is an extensible SAML Auth Endpoint to get JWT tokens.
 * Local/Container/PaaS
 * AWS Lambda environment
 
-## Deployment requirements
+## AWS Lambda deployment requirements
 
 * Serverless framework: https://www.serverless.com/framework/docs/getting-started/
 * Setup AWS credentials: https://www.serverless.com/framework/docs/providers/aws/cli-reference/config-credentials/
@@ -30,11 +30,16 @@ This is an extensible SAML Auth Endpoint to get JWT tokens.
 
 * Update "serviceName" with your own in [setup.demo.json](https://github.com/davidayalas/saml-jwt/blob/master/setup.demo.json#L2)
 
-* Basic env variables:
+* Basic env variables (default values point to [https://samltest.id/](https://samltest.id/)):
 
     - SAML_CERT: you idp saml certificate as string
     - IDP_HOST: your idp
-    - JWT_SECRET: to sign JWT from SAML and validate from custom authorizer
+    - JWT_SECRET: to sign JWT from SAML and validate from custom authorizer<br />
+
+	- [Metadata](/docs/sp-metadata.xml) for samltest.id is generated with [https://www.samltool.com/sp_metadata.php](https://www.samltool.com/sp_metadata.php):
+		- In "Attribute Consume Service Endpoint (HTTP-POST)" you have to put your api endpoint:
+
+				https://${api gateway id}.execute-api.${region}.amazonaws.com/${stage}/login/callback
 
 * Deploy demo
 
@@ -46,12 +51,13 @@ This is an extensible SAML Auth Endpoint to get JWT tokens.
 ## Environment variables
 
 - IDP_HOST = your idp host
-- STAGE = pro (when exposing through AWS - API GW is mandatory to ensure redirects)
+- STAGE = demo, pre, pro (when exposing through AWS - API GW is mandatory to ensure redirects)
 
 - SAML_DOMAIN = [API GW HOST]
 - SAML_CERT = IDP public signing certificate
 - SAML_PRIVATE_CERT = private cert
 - SAML_ISSUER = your sp id
+- SAML_ENTRY_POINT: instead of IDP_HOST, you can specify your IDP entry point detailed.
 
 - JWT_SECRET = signing secret
 - JWT_SAML_PROFILE = keys from the SAML Profile to add and sign in JWT Token (e.g. for auth purposes later)
