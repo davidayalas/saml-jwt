@@ -45,7 +45,7 @@ This is an extensible SAML Auth Endpoint to get JWT tokens.
 
 * Custom authorizer and protected service
 	* custom auth uses the token generated from SAML-JWT
-	* decodes and validate it, and with the user id, search with [S3 Select](https://github.com/davidayalas/aws-saml-jwt/blob/master/backend/custom-auth/index.js#L31) over [permissions.csv](html/permissions.csv) for specific user permissions (only for demo purposes)
+	* decodes and validate it, and with the user id, search with [S3 Select](https://github.com/davidayalas/saml-jwt/blob/master/backend/custom-auth/index.js#L31) over [permissions.csv](html/permissions.csv) for specific user permissions (only for demo purposes)
 	* it allows request or not the /private endpoint
 
 ## Environment variables
