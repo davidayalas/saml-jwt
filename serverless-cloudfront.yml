@@ -65,6 +65,82 @@ resources:
                   ]
                 ]
 
+    WebAppCloudFrontDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Origins:
+            - DomainName: ${self:custom.frontBucket}.s3.amazonaws.com
+              Id: ${self:custom.serviceName}-bucket
+              CustomOriginConfig:
+                HTTPPort: 80
+                HTTPSPort: 443
+                OriginProtocolPolicy: https-only
+            - DomainName: 
+                !Join
+                  - ''
+                  - - !Ref ApiGatewayRestApi
+                    - '.execute-api.'
+                    - ${self:provider.region}
+                    - '.amazonaws.com'
+              Id: ${self:custom.serviceName}-api
+              CustomOriginConfig:
+                HTTPPort: 80
+                HTTPSPort: 443
+                OriginProtocolPolicy: https-only
+
+          Enabled: 'true'
+          DefaultRootObject: index.html
+          CustomErrorResponses:
+            - ErrorCode: 404
+              ResponseCode: 200
+              ResponsePagePath: /index.html
+
+          DefaultCacheBehavior:
+            AllowedMethods:
+              - HEAD
+              - GET
+            TargetOriginId: ${self:custom.serviceName}-bucket
+            DefaultTTL: 0
+            MaxTTL: 0
+            MinTTL: 0
+            ForwardedValues:
+              QueryString: 'false'
+              Cookies:
+                Forward: whitelist
+                WhitelistedNames: 
+                  - Authorization
+              Headers: 
+                - Authorization
+                - Referer
+            ViewerProtocolPolicy: redirect-to-https
+
+          CacheBehaviors:
+            - AllowedMethods:
+                - HEAD
+                - DELETE
+                - POST
+                - GET
+                - OPTIONS
+                - PUT
+                - PATCH
+              TargetOriginId: ${self:custom.serviceName}-api
+              DefaultTTL: 0
+              PathPattern: ${self:provider.stage}/*
+              MaxTTL: 0
+              MinTTL: 0
+              ForwardedValues:
+                QueryString: 'false'
+                Cookies:
+                  Forward: all
+                Headers: 
+                  - Authorization
+                  - Referer
+              ViewerProtocolPolicy: redirect-to-https
+
+          ViewerCertificate:
+            CloudFrontDefaultCertificate: 'true'
+
 functions:
   login:
     handler: backend/app.handler
@@ -75,18 +151,16 @@ functions:
           cors: true
 
     environment:
-      ALLOWED_DOMAINS: ${self:custom.frontBucket}.s3-${self:provider.region}.amazonaws.com        
+      ALLOWED_DOMAINS: 
+        !Join
+          - ','
+          - - ${self:custom.frontBucket}.s3-${self:provider.region}.amazonaws.com        
+            - 'Fn::GetAtt': [ WebAppCloudFrontDistribution, DomainName ]    
       IDP_HOST: ${env:IDP_HOST, "samltest.id"}
       JWT_SAML_PROFILE:	urn:oid:2.5.4.42, urn:oid:0.9.2342.19200300.100.1.3, urn:oid:2.16.840.1.113730.3.1.241		
       JWT_SECRET: ${env:JWT_SECRET, "12345678"}
       SAML_CERT: ${env:SAML_CERT, "MIIDEjCCAfqgAwIBAgIVAMECQ1tjghafm5OxWDh9hwZfxthWMA0GCSqGSIb3DQEB CwUAMBYxFDASBgNVBAMMC3NhbWx0ZXN0LmlkMB4XDTE4MDgyNDIxMTQwOVoXDTM4 MDgyNDIxMTQwOVowFjEUMBIGA1UEAwwLc2FtbHRlc3QuaWQwggEiMA0GCSqGSIb3 DQEBAQUAA4IBDwAwggEKAoIBAQC0Z4QX1NFKs71ufbQwoQoW7qkNAJRIANGA4iM0 ThYghul3pC+FwrGv37aTxWXfA1UG9njKbbDreiDAZKngCgyjxj0uJ4lArgkr4AOE jj5zXA81uGHARfUBctvQcsZpBIxDOvUUImAl+3NqLgMGF2fktxMG7kX3GEVNc1kl bN3dfYsaw5dUrw25DheL9np7G/+28GwHPvLb4aptOiONbCaVvh9UMHEA9F7c0zfF /cL5fOpdVa54wTI0u12CsFKt78h6lEGG5jUs/qX9clZncJM7EFkN3imPPy+0HC8n spXiH/MZW8o2cqWRkrw3MzBZW3Ojk5nQj40V6NUbjb7kfejzAgMBAAGjVzBVMB0G A1UdDgQWBBQT6Y9J3Tw/hOGc8PNV7JEE4k2ZNTA0BgNVHREELTArggtzYW1sdGVz dC5pZIYcaHR0cHM6Ly9zYW1sdGVzdC5pZC9zYW1sL2lkcDANBgkqhkiG9w0BAQsF AAOCAQEASk3guKfTkVhEaIVvxEPNR2w3vWt3fwmwJCccW98XXLWgNbu3YaMb2RSn 7Th4p3h+mfyk2don6au7Uyzc1Jd39RNv80TG5iQoxfCgphy1FYmmdaSfO8wvDtHT TNiLArAxOYtzfYbzb5QrNNH/gQEN8RJaEf/g/1GTw9x/103dSMK0RXtl+fRs2nbl D1JJKSQ3AdhxK/weP3aUPtLxVVJ9wMOQOfcy02l+hHMb6uAjsPOpOVKqi3M8XmcU ZOpx4swtgGdeoSpeRyrtMvRwdcciNBp9UZome44qZAYH1iqrpmmjsfI9pJItsgWu 3kXPjhSfj1AJGR1l9JGvJrHki1iHTA=="}
-      SAML_DOMAIN: 
-        !Join
-          - ''
-          - - !Ref ApiGatewayRestApi
-            - '.execute-api.'
-            - ${self:provider.region}
-            - '.amazonaws.com'
+      SAML_DOMAIN: { "Fn::GetAtt" : [ "WebAppCloudFrontDistribution", "DomainName" ] } 
       SAML_ISSUER: ${env:SAML_ISSUER, "saml-jwt"}
       JWT_SAML_TTL: 60
       STAGE: ${self:provider.stage}
@@ -122,3 +196,4 @@ package:
   exclude:
     - node_modules/**
     - html/**
+

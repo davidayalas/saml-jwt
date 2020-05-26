@@ -37,6 +37,9 @@ This is an extensible SAML Auth Endpoint to get JWT tokens.
 
 				https://${api gateway id}.execute-api.${region}.amazonaws.com/${stage}/login/callback
 
+
+		- and upload to [https://samltest.id/upload.php](https://samltest.id/upload.php)
+
 * Deploy demo
 
         $ sls deploy
@@ -66,6 +69,12 @@ This is an extensible SAML Auth Endpoint to get JWT tokens.
 - ALLOWED_DOMAINS = domains, separated by comma, to allow postmessage
 - ALLOWED_HOSTS_PATTERNS = host patterns (e.g. "subdomain.domain.com"), separated by comma, to allow postmessage. Useful to trust your own domain and don't need to declare ALLOWED_DOMAINS individually
 
+## Quick explanation
+
+	* the API exposes two main methods:
+
+		* getJWT: does the auth flow with IdP and returns a postMessage with the token
+		* setCookieJWT: if all (frontend and backend) is under same domain, it sets a secure cookie "Authorization" that goes with every request. It will return to the url that inits the flow. It's almost done in [serverless-cloudfront.yml](serverless-cloudfront.yml), but needs some custom-authorizer setup to allow cookies.
 
 ## Sample client code to get JWT
 		<html>
