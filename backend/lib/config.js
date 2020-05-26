@@ -35,8 +35,8 @@ module.exports = function(){
 	}
 	
 	let jwt_ttl=1800;
-	if(process.env.JWT_TTL){
-		jwt_ttl = process.env.JWT_TTL*1;
+	if(process.env.JWT_SAML_TTL){
+		jwt_ttl = process.env.JWT_SAML_TTL*1;
 	}
 
 	//Private Key

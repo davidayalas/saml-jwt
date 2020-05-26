@@ -16,6 +16,26 @@ provider:
 
 resources:
   Resources:
+    GatewayResponseDefault4XX:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+          
+    GatewayResponseDefault5XX:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_5XX
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'     
+
     S3Front:
       Type: AWS::S3::Bucket
       Properties:
@@ -70,7 +90,26 @@ functions:
             - ${self:provider.region}
             - '.amazonaws.com'
       SAML_ISSUER: ${env:SAML_ISSUER, "saml-jwt"}
+      JWT_SAML_TTL: 60
       STAGE: ${self:provider.stage}
+
+  custom-auth:
+    handler: backend/custom-auth/index.handler
+    environment:
+      JWT_SECRET: ${env:JWT_SECRET, "12345678"}    
+      BUCKET: ${self:custom.frontBucket}
+      FILE: permissions.csv
+
+  private-service:
+    handler: backend/auth-protected/index.handler
+    events:
+      - http:
+          path: /private
+          method: get
+          cors: true
+          authorizer:
+            name: custom-auth
+            resultTtlInSeconds: 1
 
 custom:
   setupFile: ./setup.${self:provider.stage}.json

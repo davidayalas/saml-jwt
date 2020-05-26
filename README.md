@@ -4,7 +4,7 @@ This is an extensible SAML Auth Endpoint to get JWT tokens.
 
 * It will generate a JWT Token after user login. 
 * To manage it from client side, you have to capture PostMessage. Sample code at the end or in [html frontend](html/index.html).
-* if you deploy with serverless framework complete working sample is available, without setup, consuming [https://samltest.id/](https://samltest.id/). You only have to upload [SP metadata](docs/sp-metadata.xml) and change <md:AssertionConsumerService Location="..."> with your api gateway endpoint.
+* if you deploy with serverless framework complete working sample is available (with custom auth, private endpoint), without setup, consuming [https://samltest.id/](https://samltest.id/). You only have to upload [SP metadata](docs/sp-metadata.xml) and change <md:AssertionConsumerService Location="..."> with your api gateway endpoint.
 
 ## Install dependencies
 
@@ -43,6 +43,10 @@ This is an extensible SAML Auth Endpoint to get JWT tokens.
         $ sls info | grep ANY -m 1 | awk -F[/:] '{printf "var endpoint='\''https://"$4"'\'';"}' > html/endpoint.js
         $ sls s3sync
 
+* Custom authorizer and protected service
+	* custom auth uses the token generated from SAML-JWT
+	* decodes and validate it, and with the user id, search with [S3 Select](https://github.com/davidayalas/aws-saml-jwt/blob/master/backend/custom-auth/index.js#L31) over [permissions.csv](html/permissions.csv) for specific user permissions (only for demo purposes)
+	* it allows request or not the /private endpoint
 
 ## Environment variables
 
@@ -61,23 +65,6 @@ This is an extensible SAML Auth Endpoint to get JWT tokens.
 
 - ALLOWED_DOMAINS = domains, separated by comma, to allow postmessage
 - ALLOWED_HOSTS_PATTERNS = host patterns (e.g. "subdomain.domain.com"), separated by comma, to allow postmessage. Useful to trust your own domain and don't need to declare ALLOWED_DOMAINS individually
-
-## AWS API Gateway Setup 
-
-- Resource:
-	- /{proxy+} 
-- Methods:
-	- GET
-	- POST
-
-![](docs/aws-api-gw.png)
-
-## Custom Authorizer for API Gateway
-
-* Sample authorizer here: https://yos.io/2017/09/03/serverless-authentication-with-jwt/
-* For authorizer and CORS, you have to setup gateway responses for 4xx:
-
-![](docs/gateway-responses.png)
 
 
 ## Sample client code to get JWT
