@@ -91,7 +91,7 @@ module.exports = function (app, config, passport) {
 	});
 
 	//sets cookie JWT token
-	app.get("/setCookieJWT*", checkHost, ensureAuthenticated, function(req, res, next){
+	app.get("/setCookieJWT*", ensureAuthenticated, function(req, res, next){
 		var object2Sign = {};
 
 		for(var i=0,z=config.jwt_saml_profile.length;i<z;i++){
@@ -102,7 +102,7 @@ module.exports = function (app, config, passport) {
 
 		const referer = req.cookies.origin;
 		
-		res.cookie('Authorization', token, { httpOnly: true, secure: true });
+		res.cookie('Authorization', token, { httpOnly: true, secure: true; sameSite: 'strict' });
 		res.clearCookie("origin");
 
 		res.redirect(referer);
