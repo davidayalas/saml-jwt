@@ -25,7 +25,7 @@ const buildIAMPolicy = (userId, effect, resource, context) => {
 
 async function getPermissions(user){
   if(!_BUCKET || !_FILE){
-    return "Deny";
+    return [];
   }
 
   const permissions = await s3select.query({

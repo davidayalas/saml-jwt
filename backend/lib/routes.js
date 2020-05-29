@@ -102,7 +102,7 @@ module.exports = function (app, config, passport) {
 
 		const referer = req.cookies.origin;
 		
-		res.cookie('Authorization', token, { httpOnly: true, secure: true; sameSite: 'strict' });
+		res.cookie('Authorization', token, { httpOnly: true, secure: true, sameSite: 'strict' });
 		res.clearCookie("origin");
 
 		res.redirect(referer);
